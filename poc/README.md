@@ -1,8 +1,71 @@
-# Proof of Concept — EIP Control
+# Proof of Concept
+
+Two PoCs are included: a crafted save file that crashes the game on load (no tools needed), and a Frida script that achieves full EIP control.
+
+---
+
+## PoC 1 — Save File Crash (`crash_minimal.bin`)
+
+A career save with a single 4-byte modification that crashes the game during deserialization. No Frida, no debugger, no instrumentation required.
+
+### What it does
+
+The save file sets career struct offset `+0x8c` to `0x41414141`. During deserialization, `FUN_005344e0` uses this value as a scaled array index (`[EBP + EAX*4 - 0x24]`), producing an out-of-bounds memory access that crashes the game with an access violation.
+
+### Difference from a clean save
+
+```
+Offset   Clean     Exploit
+──────   ─────     ───────
+0xc573   00000000  41414141   (career+0x8c — array index for OOB access)
+```
+
+That's it. Four bytes.
+
+### Steps
+
+1. **Copy the save file** into a profile directory:
+
+   ```
+   %LOCALAPPDATA%\NFS Underground 2\<ProfileName>\<ProfileName>
+   ```
+
+   The profile name is both the folder name and the filename (no extension). Create a new profile in-game first if needed.
+
+2. **Launch the game** and load that profile from the career menu.
+
+3. **Game crashes** with an access violation at `0x5346d7`.
+
+### Expected crash state
+
+```
+Exception:    access-violation
+Fault addr:   0x5346d7
+
+EIP = 0x5346d7    (faulting instruction in deserializer)
+EAX = 0x41414141  ← SAVE FILE DATA (4 bytes at file offset 0xc573)
+EBX = 0x83aa28    ← career struct + 0x48
+EDI = 0x83aa6c    ← career struct + 0x8c (OOB index source)
+
+Faulting instruction:
+  MOV ECX, [EBP + EAX*4 - 0x24]
+  → [EBP + 0x05050504 - 0x24]
+  → access violation (millions of bytes past the stack)
+```
+
+### Notes
+
+- Not every 4-byte value at offset `0xc573` will crash. Values where `EAX * 4` wraps to a small offset in 32-bit arithmetic (e.g. `0x7FFFFFFF * 4 = 0xFFFFFFFC`) land near EBP and don't fault. Values that produce a large positive offset (like `0x41414141`) reliably crash.
+- The crash is deterministic — same registers, same fault address, every time.
+- The 12-byte hash in the save header is read but never verified. No checksum stands in the way.
+
+---
+
+## PoC 2 — Full EIP Control (`eip_control.js`)
 
 Frida-based proof that the Vuln 2 → Vuln 3 chain achieves full instruction pointer control.
 
-## What it does
+### What it does
 
 The script instruments three functions during career save loading:
 
@@ -12,25 +75,25 @@ The script instruments three functions during career save loading:
 
 An exception handler captures the resulting access violation and reports the controlled EIP value.
 
-## What it does NOT do
+### What it does NOT do
 
 - Does not execute shellcode or any payload beyond `0x41414141`
 - Does not modify save files on disk
 - Does not persist any changes — killing the game process undoes everything
 
-## Requirements
+### Requirements
 
 - [Frida](https://frida.re/) (`pip install frida-tools`)
 - Need for Speed Underground 2 installed
 - A career save profile (any save works)
 
-## Steps
+### Steps
 
-### 1. Launch the game
+#### 1. Launch the game
 
 Start `SPEED2.EXE` normally. Wait for the main menu to load.
 
-### 2. Find the process ID
+#### 2. Find the process ID
 
 ```
 frida-ps | findstr SPEED2
@@ -42,7 +105,7 @@ Or on PowerShell:
 Get-Process SPEED2 | Select-Object Id
 ```
 
-### 3. Attach Frida
+#### 3. Attach Frida
 
 ```
 frida -p <PID> -l eip_control.js
@@ -54,11 +117,11 @@ You should see:
 [Local::PID::<PID>]-> EIP control PoC loaded. Load a career save to trigger.
 ```
 
-### 4. Trigger the chain
+#### 4. Trigger the chain
 
 In the game, go to the career menu and load a saved profile. The chain fires during deserialization.
 
-### 5. Observe the result
+#### 5. Observe the result
 
 Frida's console will show the full chain trace:
 
@@ -84,7 +147,7 @@ deser_inner entered — chain ARMED
 
 The game will crash with an access violation. This is expected — `0x41414141` is not a valid code address.
 
-## Notes
+### Notes
 
 - The script uses `Interceptor.attach`, so Frida must be attached to a running process (not spawned). Spawn mode crashes the game.
 - ECX in Vuln 2 is a heap-allocated audio manager object, not the career struct. The address varies between runs but the exploit works regardless because we read the actual ECX at runtime.
