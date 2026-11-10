@@ -2,7 +2,7 @@
 
 ## 1. Summary
 
-The career save file loader in Need for Speed Underground 2 (`SPEED2.EXE`) contains three memory corruption vulnerabilities in the deserialization chain. Two of these chain together to achieve full instruction pointer (EIP) control from a crafted save file, resulting in arbitrary code execution when a victim loads the malicious save.
+The career save file loader in the **PC (Windows) version** of Need for Speed Underground 2 (`SPEED2.EXE`) contains three memory corruption vulnerabilities in the deserialization chain. Two of these chain together to achieve full instruction pointer (EIP) control from a crafted save file, resulting in arbitrary code execution when a victim loads the malicious save. Console versions were not tested.
 
 A crafted save file that triggers a crash on load is included in this repository. It requires a single 4-byte modification to a normal save file — no tools or instrumentation needed.
 
@@ -15,6 +15,7 @@ The binary has no ASLR (fixed image base `0x400000`), no stack cookies, no DEP, 
 | Property | Value |
 |----------|-------|
 | Binary | `SPEED2.EXE` |
+| Version | PC (Windows) |
 | Platform | Windows x86, 32-bit PE |
 | Image base | `0x00400000` (fixed, no ASLR) |
 | Stack cookies | None |

@@ -5,6 +5,7 @@ Three memory corruption vulnerabilities in the Need for Speed Underground 2 care
 | | |
 |---|---|
 | **Product** | Need for Speed Underground 2 (SPEED2.EXE) |
+| **Version** | PC (Windows) |
 | **Vendor** | Electronic Arts |
 | **Platform** | Windows x86 (32-bit PE) |
 | **Severity** | Critical (CVSS 3.1: 8.6) |
