@@ -8,7 +8,7 @@ Three memory corruption vulnerabilities in the Need for Speed Underground 2 care
 | **Version** | PC (Windows) |
 | **Vendor** | Electronic Arts |
 | **Platform** | Windows x86 (32-bit PE) |
-| **Severity** | Critical (CVSS 3.1: 8.6) |
+| **Severity** | High (CVSS 3.1: 7.8 — AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H) |
 | **Attack vector** | Crafted career save file |
 | **Impact** | Arbitrary code execution |
 | **Date** | November 2026 |
