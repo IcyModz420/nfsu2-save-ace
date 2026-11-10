@@ -2,7 +2,7 @@
 
 // ============================================================
 // EIP CONTROL PROOF-OF-CONCEPT
-// NFS Underground 2 (SPEED2.EXE) — Save File RCE
+// NFS Underground 2 (SPEED2.EXE) — Save File ACE
 //
 // Chain: Vuln 2 (write-what-where) → Vuln 3 (vtable hijack)
 //

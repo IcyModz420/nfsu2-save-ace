@@ -1,4 +1,4 @@
-# NFS Underground 2 — Save File Remote Code Execution
+# NFS Underground 2 — Save File Arbitrary Code Execution
 
 Three memory corruption vulnerabilities in the Need for Speed Underground 2 career save deserializer that chain together for **full EIP control** from a crafted save file.
 

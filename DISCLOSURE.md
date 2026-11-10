@@ -1,4 +1,4 @@
-# Full Disclosure: Remote Code Execution via Crafted Save File in Need for Speed Underground 2
+# Full Disclosure: Arbitrary Code Execution via Crafted Save File in Need for Speed Underground 2
 
 ## 1. Summary
 
